@@ -1,0 +1,42 @@
+version: "3.3"
+services:
+  static:
+    build: ./Nginx_Static
+    hostname: static
+    ports:
+      - 8080:80
+    networks:
+      - counter-net
+  app:
+    build: ./Python
+    hostname: pythondock
+    command: python app.py
+    ports: 
+      - 8081:5000
+    networks:
+      - counter-net
+    volumes:
+      - type: volume
+        source: counter-vol
+        target: /code
+
+  database:
+    image: "redis:alpine"
+    hostname: redis
+    networks:
+      - counter-net
+
+  proxy:
+    image: "nginx:latest"
+    ports:
+      - 80:80
+    volumes:
+      - ./Nginx_Proxy:/etc/nginx/conf.d/
+    networks:
+      - counter-net
+
+networks:
+  counter-net:
+
+volumes:
+  counter-vol:
